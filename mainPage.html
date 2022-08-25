@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Wordle solver!</title>
+      <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="stylesheet.css">
+      <script type="text/javascript" src="data.js"></script>
+   </head>
+   <body>
+      <div class="container-fluid">
+         <div class="row" id="title">
+            <h1 id="titleName">
+               <span class="titleWordle">W</span>
+               <span class="titleWordle">O</span>
+               <span class="titleWordle">R</span>
+               <span class="titleWordle">D</span>
+               <span class="titleWordle">L</span>
+               <span class="titleWordle">E</span>
+               <span id="solver">Solver</span>
+               <span id="titleExMark">!</span>
+               <button type="button" id="restartBtn"class="btn btn-warning" onclick="restart()"> RESTART</button>
+            </h1>
+         </div>
+         <div class="row" id="word">
+            <div class=" col-xs-4">
+               <ul class="list-group" id="filteredWordList">
+               </ul>
+               <input type="text" id="newWord" class="form-control" placeholder="Search for..." value="CRANE">
+               <button class="btn btn-primary" id="setBtn" type="button" onclick="search()">Set letters > > </button>
+            </div>
+            <div class="col-xs-8">
+               <div class="row">
+                  <div class=" col-xs-2  char">
+                     <h2 class="letter" id="l1"></h2>
+                     <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" id="g1" class="btn btn-success" onclick="setColor('g1')"></button>
+                        <button type="button" id="o1" class="btn btn-warning" onclick="setColor('o1')"></button>
+                     </div>
+                  </div>
+                  <div class=" col-xs-2   char">
+                     <h2 class="letter" id="l2"></h2>
+                     <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" id="g2" class="btn btn-success" onclick="setColor('g2')"></button>
+                        <button type="button" id="o2" class="btn btn-warning" onclick="setColor('o2')"></button>
+                     </div>
+                  </div>
+                  <div class=" col-xs-2   char">
+                     <h2 class="letter" id="l3"></h2>
+                     <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" id="g3" class="btn btn-success" onclick="setColor('g3')"></button>
+                        <button type="button" id="o3" class="btn btn-warning" onclick="setColor('o3')"></button>
+                     </div>
+                  </div>
+                  <div class=" col-xs-2   char">
+                     <h2 class="letter" id="l4"></h2>
+                     <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" id="g4" class="btn btn-success" onclick="setColor('g4')"></button>
+                        <button type="button" id="o4" class="btn btn-warning" onclick="setColor('o4')"></button>
+                     </div>
+                  </div>
+                  <div class=" col-xs-2   char">
+                     <h2 class="letter" id="l5"></h2>
+                     <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" id="g5" class="btn btn-success" onclick="setColor('g5')"></button>
+                        <button type="button" id="o5" class="btn btn-warning" onclick="setColor('o5')"></button>
+                     </div>
+                  </div>
+                  <div class=" col-xs-8 " id="submitBtn">
+                     <button type="button" class="btn btn-primary" onclick="onConfirmColor()">Confirm color to get filtered result!</button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+	  <script>
+let word = "....."
+let greenWord = new Array(5)
+let orangeWord = new Array(26)
+let mustNot = ""
+let colorCode = new Array(5)
+
+
+
+
+function initialiseGreenWord() {
+    for (var i = 0; i < 5; i++) greenWord[i] = '.'
+
+    for (var i = 0; i < 5; i++) console.log(greenWord[i])
+}
+
+function initialiseColorCode() {
+    for (var i = 0; i < 5; i++) colorCode[i] = "."
+}
+
+function initialseOrangeWord() {
+    for (var i = 0; i < 26; i++) orangeWord[i] = []
+}
+
+
+function setLetters(newWord) {
+    first = ['g', 'o']
+    second = ['1', '2', '3', '4', '5']
+
+    for (var i = 0; i < 2; i++) {
+        for (var j = 0; j < 5; j++) {
+            newId = first[i] + second[j]
+            document.getElementById(newId).innerHTML = newWord[j];
+
+        }
+    }
+
+    for (var i = 0; i < 5; i++) {
+        newId = 'l' + second[i];
+        document.getElementById(newId).innerHTML = newWord[i];
+
+    }
+
+}
+
+function updateGreenWord() {
+    for (var i = 0; i < 5; i++) {
+        if (colorCode[i] == 'g') {
+            greenWord[i] = word[i];
+        }
+    }
+
+}
+
+function updateOrangeWord() {
+
+    for (var i = 0; i < 5; i++) {
+        if (colorCode[i] == 'o') {
+            arrIndex = word.charCodeAt(i) - 97;
+            orangeWord[arrIndex].push(i);
+
+        }
+
+    }
+}
+
+function updateGreyWord() {
+    for (var i = 0; i < 5; i++) {
+        if (colorCode[i] == 'b') {
+
+            index = word.charCodeAt(i) - 97;
+            if (!greenWord.includes(word[i]) && !orangeWord[index].length)
+                mustNot += word[i];
+        }
+    }
+}
+
+
+
+function setAllToGrey() {
+    for (var i = 1; i <= 5; i++) {
+        element = document.getElementById("l" + i)
+        element.style.backgroundColor = "grey"
+        element.style.color = "white"
+        colorCode[i - 1] = "b"
+    }
+}
+
+function setColorForRightlyPLacedLetter() {
+    for (var i = 0; i < greenWord.length; i++) {
+        if (greenWord[i] == word[i]) {
+            element = document.getElementById("l" + (i + 1))
+            element.style.backgroundColor = "green"
+            element.style.color = "white"
+            colorCode[i] = "g"
+        }
+    }
+}
+
+function search() {
+    newWord = document.getElementById("newWord").value
+    newWord = newWord.toUpperCase()
+    console.log("Search for :" + newWord)
+
+    setLetters(newWord);
+
+
+    word = newWord.toLowerCase()
+    setAllToGrey();
+    setColorForRightlyPLacedLetter();
+    console.log(word)
+}
+function setColor(colorId) {
+    console.log(colorId);
+    newId = 'l' + colorId[1];
+    console.log(colorId[1] - 1)
+    index = colorId[1] - 1;
+    element = document.getElementById(newId);
+
+    if (colorId[0] == 'g') {
+        element.style.backgroundColor = "green"
+        element.style.color = "white"
+        colorCode[index] = 'g'
+    } else if (colorId[0] == 'o') {
+        element.style.backgroundColor = "orange";
+        element.style.color = "white";
+        colorCode[index] = 'o'
+    }
+    console.log("must not string: " + mustNot)
+
+
+}
+function greenTest(currentWord) {
+    for (var i = 0; i < 5; i++) {
+        if (greenWord[i] != '.' && currentWord[i] != greenWord[i]) return false;
+    }
+    return true;
+}
+
+function orangeTest(currentWord) {
+
+    for (var i = 0; i < 26; i++) {
+        code = i + 97;
+        character = String.fromCharCode(code)
+
+        for (var j = 0; j < orangeWord[i].length; j++) {
+            if (!currentWord.includes(character)) return false;
+
+            index = orangeWord[i][j]
+            if (currentWord[index] == character) return false;
+        }
+    }
+    return true;
+}
+
+function greyTest(currentWord) {
+
+    for (var i = 0; i < 5; i++) {
+        if (mustNot.includes(currentWord[i])) return false;
+    }
+    return true;
+}
+
+function filterWords() {
+    let filteredWords = []
+
+    for (var i = 0; i < dictWords.length; i++) {
+        //order of calling function is important!
+        if (greenTest(dictWords[i]) && orangeTest(dictWords[i]) && greyTest(dictWords[i])) {
+            filteredWords.push(dictWords[i])
+        }
+    }
+
+    let list = document.getElementById("filteredWordList");
+    count = 1;
+    filteredWords.forEach((item) => {
+
+
+        let li = document.createElement("li");
+        li.innerText = item;
+        if (count % 2 == 0) {
+            li.style.backgroundColor = "#2A0944"
+            li.style.color = "white"
+        } else {
+            li.style.backgroundColor = "#F7F6DC"
+            li.style.color = "black"
+        }
+
+        count++;
+
+        list.appendChild(li);
+    });
+
+}
+
+function clearPreviousWords() {
+    document.getElementById("filteredWordList").innerHTML = "";
+}
+
+function onConfirmColor() {
+    console.log("color code: " + colorCode + " for word :" + word)
+    updateGreenWord();
+    updateOrangeWord();
+    updateGreyWord();
+
+    clearPreviousWords();
+    filterWords();
+
+}
+
+
+function init() {
+    mustNot = ""
+    initialiseGreenWord()
+    initialseOrangeWord()
+    initialiseColorCode()
+
+    setAllToGrey();
+    clearPreviousWords();
+    newWord = document.getElementById("newWord")
+    newWord.value = "crane"
+    search();
+
+}
+
+function restart() {
+    init();
+
+}
+init()
+</script>
+
+
+   </body>
+</html>
